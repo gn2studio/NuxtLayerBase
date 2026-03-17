@@ -30,13 +30,14 @@ export function useApi(baseURL?: string) {
       token = await refreshToken()
     }
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string> | undefined),
+    const headers = new Headers(options.headers as HeadersInit | undefined)
+
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
     }
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers.set('Authorization', `Bearer ${token}`)
     }
 
     return {
