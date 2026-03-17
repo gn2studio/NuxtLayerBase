@@ -46,13 +46,37 @@ function getUserManager(): UserManager {
 }
 
 // ─── Shared reactive state (single instance across all composable calls) ──────
-const _authState = useState<AuthState>('auth', () => ({
-  isAuthenticated: false,
-  user: null,
-  token: null,
-  loading: false,
-  error: null,
-}))
+type AuthStateRef = ReturnType<typeof useState<AuthState>>
+
+// Real underlying state ref, created lazily when first accessed via the proxy.
+let _authStateReal: AuthStateRef | null = null
+
+function ensureAuthState(): AuthStateRef {
+  if (!_authStateReal) {
+    _authStateReal = useState<AuthState>('auth', () => ({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      loading: false,
+      error: null,
+    }))
+  }
+  return _authStateReal
+}
+
+// Publicly used shared state ref. This proxy defers the actual `useState` call
+// until `_authState` is first accessed, avoiding Nuxt composable usage at
+// module evaluation time while keeping the `_authState.value` API intact.
+const _authState: AuthStateRef = new Proxy({} as AuthStateRef, {
+  get(_target, prop, receiver) {
+    const state = ensureAuthState()
+    return Reflect.get(state as unknown as object, prop, receiver)
+  },
+  set(_target, prop, value, receiver) {
+    const state = ensureAuthState()
+    return Reflect.set(state as unknown as object, prop, value, receiver)
+  },
+})
 
 // Track whether UserManager event listeners have already been registered.
 let _eventsRegistered = false
