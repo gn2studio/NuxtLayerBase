@@ -1,0 +1,25 @@
+{
+  "name": "@gn2studio/nuxt-layer-base",
+  "version": "1.0.0",
+  "description": "Nuxt 3 Base Layer — authentication (OIDC), alert/confirm modals, Tailwind CSS, and common TypeScript types",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./nuxt.config.ts"
+    }
+  },
+  "scripts": {
+    "dev": "nuxi dev .playground",
+    "build": "nuxi build .playground",
+    "prepare": "nuxi prepare .playground"
+  },
+  "dependencies": {
+    "oidc-client-ts": "^3.0.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "nuxt": "^3.14.0",
+    "typescript": "^5.6.0"
+  }
+}
