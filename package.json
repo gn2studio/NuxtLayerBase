@@ -11,9 +11,9 @@
     "./*": "./*"
   },
   "scripts": {
-    "dev": "nuxi dev .playground",
-    "build": "nuxi build .playground",
-    "prepare": "nuxi prepare .playground"
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "prepare": "nuxi prepare"
   },
   "dependencies": {
     "oidc-client-ts": "^3.0.1"
