@@ -1,0 +1,100 @@
+/*
+ * assets/css/main.css
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Base CSS file for the NuxtLayerBase layer.
+ *
+ * This file:
+ *   1. Imports Tailwind's three layers (base / components / utilities).
+ *   2. Defines CSS custom properties (design tokens) that sub-projects can
+ *      override with a single import.
+ *   3. Contains a small set of opinionated global resets / utilities.
+ *
+ * Sub-projects should import this file (via nuxt.config.ts or their own CSS)
+ * and then add project-specific overrides after the @import statement.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Design Tokens ───────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Brand colours – override in the sub-project's CSS file */
+    --color-brand-50: theme('colors.brand.50');
+    --color-brand-100: theme('colors.brand.100');
+    --color-brand-500: theme('colors.brand.500');
+    --color-brand-600: theme('colors.brand.600');
+    --color-brand-900: theme('colors.brand.900');
+
+    /* Surface / background */
+    --color-surface: #ffffff;
+    --color-surface-muted: #f9fafb;
+
+    /* Text */
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+
+    /* Border */
+    --color-border: #e5e7eb;
+
+    /* Shadow */
+    --shadow-modal: 0 20px 60px -10px rgba(0, 0, 0, 0.3);
+
+    /* Border radius */
+    --radius-modal: 0.75rem;
+  }
+
+  /* Dark mode overrides */
+  .dark {
+    --color-surface: #1f2937;
+    --color-surface-muted: #111827;
+    --color-text: #f9fafb;
+    --color-text-muted: #9ca3af;
+    --color-border: #374151;
+  }
+
+  /* Smooth box-sizing for everything */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Base body styles */
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    @apply dark:bg-gray-900 dark:text-gray-100;
+    font-family: theme('fontFamily.sans');
+  }
+
+  /* Focus ring – override per-project if desired */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+  }
+}
+
+/* ── Component utilities ─────────────────────────────────────────────────── */
+@layer components {
+  /* Reusable card shell */
+  .card {
+    @apply rounded-xl bg-white shadow-md dark:bg-gray-800;
+    @apply border border-gray-200 dark:border-gray-700;
+  }
+
+  /* Primary button baseline – projects extend with their own brand colours */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2;
+    @apply text-sm font-medium text-white bg-brand-600 hover:bg-brand-700;
+    @apply focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2;
+    @apply text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200;
+    @apply dark:text-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600;
+    @apply focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2;
+    @apply transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}
