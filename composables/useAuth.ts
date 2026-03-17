@@ -18,10 +18,37 @@ import type { AuthState, AuthToken, User } from '~/types'
 // The UserManager is created once and shared across all composable instances.
 let _userManager: UserManager | null = null
 
+function toError(err: unknown): Error {
+  return err instanceof Error ? err : new Error(String(err))
+}
+
+function getMissingOidcSettings(config: ReturnType<typeof useRuntimeConfig>) {
+  const missing: string[] = []
+
+  if (!config.public.oidcIssuer) {
+    missing.push('NUXT_PUBLIC_OIDC_ISSUER or NUXT_PUBLIC_AUTH_AUTHORITY')
+  }
+
+  if (!config.public.oidcClientId) {
+    missing.push('NUXT_PUBLIC_OIDC_CLIENT_ID or NUXT_PUBLIC_AUTH_CLIENT_ID')
+  }
+
+  if (!config.public.oidcRedirectUri) {
+    missing.push('NUXT_PUBLIC_OIDC_REDIRECT_URI or NUXT_PUBLIC_AUTH_REDIRECT_URI')
+  }
+
+  return missing
+}
+
 function getUserManager(): UserManager {
   if (_userManager) return _userManager
 
   const config = useRuntimeConfig()
+  const missing = getMissingOidcSettings(config)
+
+  if (missing.length > 0) {
+    throw new Error(`OIDC 설정이 누락되었습니다: ${missing.join(', ')}`)
+  }
 
   const settings: UserManagerSettings = {
     authority: config.public.oidcIssuer,
@@ -153,8 +180,10 @@ export function useAuth() {
     try {
       await getUserManager().signinRedirect({ state })
     } catch (err: unknown) {
-      _authState.value.error = err instanceof Error ? err.message : String(err)
+      const error = toError(err)
+      _authState.value.error = error.message
       _authState.value.loading = false
+      throw error
     }
   }
 
@@ -168,8 +197,10 @@ export function useAuth() {
     try {
       await getUserManager().signoutRedirect()
     } catch (err: unknown) {
-      _authState.value.error = err instanceof Error ? err.message : String(err)
+      const error = toError(err)
+      _authState.value.error = error.message
       _authState.value.loading = false
+      throw error
     }
   }
 
@@ -188,7 +219,9 @@ export function useAuth() {
       _authState.value.user = user
       _authState.value.token = token
     } catch (err: unknown) {
-      _authState.value.error = err instanceof Error ? err.message : String(err)
+      const error = toError(err)
+      _authState.value.error = error.message
+      throw error
     } finally {
       _authState.value.loading = false
     }
@@ -202,7 +235,9 @@ export function useAuth() {
     try {
       await getUserManager().signinSilentCallback()
     } catch (err: unknown) {
-      _authState.value.error = err instanceof Error ? err.message : String(err)
+      const error = toError(err)
+      _authState.value.error = error.message
+      throw error
     }
   }
 

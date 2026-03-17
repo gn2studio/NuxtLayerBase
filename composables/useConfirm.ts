@@ -24,7 +24,6 @@ function getConfirmState() {
 
 export function useConfirm() {
   const _confirmState = getConfirmState()
-  const _confirmState = getConfirmState()
   /**
    * Show the confirm modal and wait for the user's answer.
    * Resolves to `true` (OK) or `false` (cancel).

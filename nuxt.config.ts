@@ -1,6 +1,4 @@
 // https://nuxt.com/docs/guide/going-further/layers
-import { defineNuxtConfig } from 'nuxt/config'
-
 export default defineNuxtConfig({
   /**
    * Modules bundled with the layer.

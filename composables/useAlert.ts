@@ -34,9 +34,9 @@ export function useAlert() {
       typeof options === 'string' ? { message: options } : options
 
     // If an alert is already active, resolve its Promise before showing a new one
-    if (_alertState.value.visible && _alertState.value.resolve) {
-      _alertState.value.resolve()
-      _alertState.value.resolve = null
+    if (state.value.visible && state.value.resolve) {
+      state.value.resolve()
+      state.value.resolve = null
     }
 
     return new Promise<void>((resolve) => {
