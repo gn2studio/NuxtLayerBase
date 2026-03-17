@@ -93,11 +93,11 @@ function mapOidcUser(oidcUser: OidcUser): { user: User; token: AuthToken } {
   })()
 
   const user: User = {
+    ...profile,
     id: profile.sub,
     email: (profile.email as string) ?? '',
     name: profile.name ?? profile.preferred_username ?? profile.sub,
     roles,
-    ...profile,
   }
 
   const token: AuthToken = {
