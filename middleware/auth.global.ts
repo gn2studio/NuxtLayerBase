@@ -11,6 +11,8 @@
  *
  * This middleware runs on the client only (oidc-client-ts is browser-only).
  */
+import { watch } from 'vue'
+
 export default defineNuxtRouteMiddleware(async (to) => {
   // Skip on server-side rendering — OIDC state is only available in the browser.
   if (import.meta.server) return
@@ -33,9 +35,26 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const { isAuthenticated, loading, loadUser, login } = useAuth()
 
-  // If the auth state hasn't been hydrated yet, load from storage first
-  if (!isAuthenticated.value && !loading.value) {
-    await loadUser()
+  // Ensure auth state is hydrated before deciding whether to redirect.
+  if (!isAuthenticated.value) {
+    if (!loading.value) {
+      // No hydration in progress, trigger it ourselves.
+      await loadUser()
+    } else {
+      // Hydration already in progress (e.g. from auth.client plugin);
+      // wait for it to finish before checking auth status.
+      await new Promise<void>((resolve) => {
+        const stop = watch(
+          () => loading.value,
+          (isLoading) => {
+            if (!isLoading) {
+              stop()
+              resolve()
+            }
+          },
+        )
+      })
+    }
   }
 
   if (!isAuthenticated.value) {
