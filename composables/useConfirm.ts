@@ -14,13 +14,17 @@ interface ConfirmState {
   resolve: ((value: boolean) => void) | null
 }
 
-const _confirmState = useState<ConfirmState>('confirm', () => ({
-  visible: false,
-  options: { message: '' },
-  resolve: null,
-}))
+function getConfirmState() {
+  return useState<ConfirmState>('confirm', () => ({
+    visible: false,
+    options: { message: '' },
+    resolve: null,
+  }))
+}
 
 export function useConfirm() {
+  const _confirmState = getConfirmState()
+  const _confirmState = getConfirmState()
   /**
    * Show the confirm modal and wait for the user's answer.
    * Resolves to `true` (OK) or `false` (cancel).
