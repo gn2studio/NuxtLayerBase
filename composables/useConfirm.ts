@@ -30,6 +30,14 @@ export function useConfirm() {
       typeof options === 'string' ? { message: options } : options
 
     return new Promise<boolean>((resolve) => {
+      const current = _confirmState.value
+      // If a confirm is already visible, auto-cancel it so its Promise settles.
+      if (current.visible && current.resolve) {
+        current.visible = false
+        current.resolve(false)
+        current.resolve = null
+      }
+
       _confirmState.value = {
         visible: true,
         options: normalised,
