@@ -16,13 +16,16 @@ interface AlertState {
   resolve: (() => void) | null
 }
 
-const _alertState = useState<AlertState>('alert', () => ({
-  visible: false,
-  options: { message: '' },
-  resolve: null,
-}))
+function getAlertState() {
+  return useState<AlertState>('alert', () => ({
+    visible: false,
+    options: { message: '' },
+    resolve: null,
+  }))
+}
 
 export function useAlert() {
+  const state = getAlertState()
   /**
    * Show the alert modal and wait until the user dismisses it.
    */
@@ -31,7 +34,7 @@ export function useAlert() {
       typeof options === 'string' ? { message: options } : options
 
     return new Promise<void>((resolve) => {
-      _alertState.value = {
+      state.value = {
         visible: true,
         options: normalised,
         resolve,
@@ -41,15 +44,15 @@ export function useAlert() {
 
   /** Called internally by <BaseAlert /> when the user clicks OK. */
   function _dismiss() {
-    const { resolve } = _alertState.value
-    _alertState.value.visible = false
+    const { resolve } = state.value
+    state.value.visible = false
     if (resolve) resolve()
-    _alertState.value.resolve = null
+    state.value.resolve = null
   }
 
   return {
     /** Reactive state consumed by the BaseAlert component */
-    state: _alertState,
+    state,
     alert,
     _dismiss,
   }
