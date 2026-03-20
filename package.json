@@ -11,15 +11,23 @@
     "./*": "./*"
   },
   "scripts": {
-    "dev": "nuxi dev",
-    "build": "nuxi build"
+    "dev": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs dev",
+    "build": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs build"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
   },
   "dependencies": {
     "oidc-client-ts": "3.1.0"
   },
+  "optionalDependencies": {
+    "@oxc-minify/binding-win32-x64-msvc": "^0.117.0",
+    "@oxc-parser/binding-win32-x64-msvc": "^0.117.0",
+    "@oxc-transform/binding-win32-x64-msvc": "^0.117.0"
+  },
   "devDependencies": {
-    "@nuxtjs/tailwindcss": "6.12.0",
-    "nuxt": "3.14.0",
+    "@nuxtjs/tailwindcss": "6.14.0",
+    "nuxt": "3.21.2",
     "typescript": "5.6.3"
   }
 }

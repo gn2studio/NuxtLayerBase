@@ -5,7 +5,15 @@
  * which reads any existing session from storage and populates the reactive
  * auth state — so components / middleware see the correct value immediately.
  */
-export default defineNuxtPlugin(async () => {
-  const { loadUser } = useAuth()
-  await loadUser()
+export default defineNuxtPlugin({
+  name: 'auth-hydration',
+  async setup() {
+    const { loadUser } = useAuth()
+
+    // Register profile sync once so auth restoration and later auth changes
+    // automatically load or clear the current user's detailed profile.
+    useCurrentUserProfile()
+
+    await loadUser()
+  },
 })

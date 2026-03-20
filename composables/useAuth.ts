@@ -13,6 +13,7 @@ import {
   type User as OidcUser,
 } from 'oidc-client-ts'
 import type { AuthState, AuthToken, User } from '~/types'
+import { clearCurrentUserProfileState } from '~/composables/useCurrentUserProfile'
 
 // ─── Singleton UserManager ────────────────────────────────────────────────────
 // The UserManager is created once and shared across all composable instances.
@@ -123,7 +124,11 @@ function mapOidcUser(oidcUser: OidcUser): { user: User; token: AuthToken } {
     ...profile,
     id: profile.sub,
     email: (profile.email as string) ?? '',
-    name: profile.name ?? profile.preferred_username ?? profile.sub,
+    name:
+      (profile.name as string | undefined) ??
+      (profile.preferred_username as string | undefined) ??
+      (profile.email as string | undefined) ??
+      profile.sub,
     roles,
   }
 
@@ -159,6 +164,7 @@ export function useAuth() {
       _authState.value.isAuthenticated = false
       _authState.value.user = null
       _authState.value.token = null
+      clearCurrentUserProfileState()
     })
 
     manager.events.addSilentRenewError((error) => {
@@ -195,6 +201,7 @@ export function useAuth() {
     _authState.value.loading = true
     _authState.value.error = null
     try {
+      clearCurrentUserProfileState()
       await getUserManager().signoutRedirect()
     } catch (err: unknown) {
       const error = toError(err)
@@ -258,9 +265,13 @@ export function useAuth() {
         _authState.value.isAuthenticated = false
         _authState.value.user = null
         _authState.value.token = null
+        clearCurrentUserProfileState()
       }
     } catch {
       _authState.value.isAuthenticated = false
+      _authState.value.user = null
+      _authState.value.token = null
+      clearCurrentUserProfileState()
     } finally {
       _authState.value.loading = false
     }

@@ -20,6 +20,7 @@ NuxtLayerBase/
 │   ├── useAlert.ts           # Promise 기반 Alert 컴포저블
 │   ├── useApi.ts             # Bearer 토큰 자동 주입 fetch 래퍼
 │   ├── useAuth.ts            # OIDC 인증 컴포저블 (oidc-client-ts)
+│   ├── useCurrentUserProfile.ts # 인증 사용자 상세 조회 및 상태 동기화
 │   └── useConfirm.ts         # Promise 기반 Confirm 컴포저블
 ├── middleware/
 │   └── auth.global.ts        # 전역 라우트 인증 가드
@@ -94,6 +95,24 @@ NUXT_PUBLIC_AUTH_PUBLIC_ROUTES=/,/about,/auth
 
 # API 기본 URL
 NUXT_PUBLIC_API_BASE_URL=https://api.example.com
+
+# 인증 도메인 사용자 상세 API 기본 URL
+NUXT_PUBLIC_AUTH_API_BASE_URL=https://auth-api.example.com
+```
+
+하위 프로젝트의 `nuxt.config.ts`에서 별도 선언이 없어도 `runtimeConfig.public.authApiBaseUrl`은
+`NUXT_PUBLIC_AUTH_API_BASE_URL`과 자동으로 매핑됩니다. 필요하면 하위 프로젝트에서 아래처럼 명시적으로
+오버라이드할 수 있습니다.
+
+```ts
+export default defineNuxtConfig({
+  extends: ['@gn2studio/nuxt-layer-base'],
+  runtimeConfig: {
+    public: {
+      authApiBaseUrl: process.env.NUXT_PUBLIC_AUTH_API_BASE_URL,
+    },
+  },
+})
 ```
 
 ### 4. 레이아웃/app.vue에 모달 컴포넌트 추가
@@ -159,6 +178,60 @@ const {
   refreshToken,        // () => Promise<string | null> — 사일런트 토큰 갱신
 } = useAuth()
 ```
+
+`useAuth()`는 OIDC 인증 상태만 담당합니다. 사용자 표시 이름에 필요한 상세 정보는 아래
+`useCurrentUserProfile()`이 별도로 관리합니다.
+
+### `useCurrentUserProfile()`
+
+```ts
+const {
+  profile,      // Ref<CurrentUserProfile | null>
+  loading,      // Ref<boolean>
+  error,        // Ref<string | null>
+  displayName,  // Ref<string | null>
+  loadProfile,  // (force?) => Promise<CurrentUserProfile | null>
+  reload,       // () => Promise<CurrentUserProfile | null>
+  clear,        // () => void
+} = useCurrentUserProfile()
+```
+
+- 현재 인증된 사용자의 `user.id` 또는 OIDC `sub`를 사용해 `GET /api/Users/{id}`를 호출합니다.
+- `Authorization: Bearer <access token>` 헤더는 기존 `useApi()` 토큰 로직을 그대로 사용합니다.
+- 기본 호출 기준 URL은 `runtimeConfig.public.authApiBaseUrl`이며, 값이 없으면 `apiBaseUrl`로 폴백합니다.
+- 로그인 콜백 성공 후, 앱 시작 시 `loadUser()`로 인증이 복원된 후, 이후 인증 사용자가 바뀌는 경우 자동으로 다시 조회됩니다.
+- 로그아웃 또는 `userUnloaded` 시 상세 프로필 상태는 함께 정리됩니다.
+
+### 로그인 후 사용자 상세 연결 흐름
+
+1. `useAuth()`가 OIDC 로그인 콜백 또는 앱 시작 시 `loadUser()`로 인증 사용자를 복원합니다.
+2. 레이어 플러그인이 `useCurrentUserProfile()` 동기화를 등록해 인증 사용자 ID를 감지합니다.
+3. `useCurrentUserProfile()`이 `authApiBaseUrl + /api/Users/{id}`로 상세 정보를 조회합니다.
+4. 하위 프로젝트는 `profile.userName` 또는 `displayName`을 바로 사용하면 됩니다.
+5. 상세 조회가 실패하면 `displayName`은 OIDC 이름, 이메일, 사용자 ID 순으로 폴백합니다.
+
+### 하위 프로젝트 표시 이름 예시
+
+```vue
+<script setup lang="ts">
+const { user } = useAuth()
+const { profile, displayName, loading } = useCurrentUserProfile()
+
+const resolvedName = computed(() => {
+  return profile.value?.userName || displayName.value || user.value?.email || 'Unknown user'
+})
+</script>
+
+<template>
+  <div>
+    <span v-if="loading">사용자 정보를 불러오는 중...</span>
+    <span v-else>{{ resolvedName }}</span>
+  </div>
+</template>
+```
+
+GN2MapFront 같은 하위 프로젝트에서는 기존 `user.name` 중심 표시 로직을 위와 같이 `profile.userName`
+우선으로 바꾸면, 로그인 후 화면에 OIDC `sub` 대신 사용자 상세 API의 `userName`이 표시됩니다.
 
 ### `useApi(baseURL?)`
 

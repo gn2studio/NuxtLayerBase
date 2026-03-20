@@ -83,6 +83,33 @@ export interface AuthState {
 }
 
 /**
+ * Detailed user profile resolved from the authentication domain API.
+ */
+export interface CurrentUserProfile {
+  id: string
+  userName: string
+  email: string
+  emailConfirmed: boolean
+  phoneNumber: string
+  phoneNumberConfirmed: boolean
+  lockoutEnabled: boolean
+  twoFactorEnabled: boolean
+  accessFailedCount: number
+  lockoutEnd: string | null
+}
+
+/**
+ * Shared client-side state for the current user's profile.
+ */
+export interface CurrentUserProfileState {
+  profile: CurrentUserProfile | null
+  loading: boolean
+  error: string | null
+  loadedUserId: string | null
+  requestedUserId: string | null
+}
+
+/**
  * Payload used when opening the Alert modal.
  */
 export interface AlertOptions {

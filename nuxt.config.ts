@@ -29,6 +29,9 @@ export default defineNuxtConfig({
       // Base URL for API requests made via useApi()
       apiBaseUrl: '',
 
+      // Base URL for the authentication domain API
+      authApiBaseUrl: '',
+
       // Convenience flag: routes that do NOT require authentication.
       // Comma-separated list of route prefixes, e.g. "/,/about,/login"
       authPublicRoutes: '/',
