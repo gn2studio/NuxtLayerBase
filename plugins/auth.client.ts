@@ -8,6 +8,23 @@
 export default defineNuxtPlugin({
   name: 'auth-hydration',
   async setup() {
+    const config = useRuntimeConfig()
+    const hasOidcConfig =
+      !!config.public.oidcIssuer &&
+      !!config.public.oidcClientId &&
+      !!config.public.oidcRedirectUri
+
+    // Allow layer UI preview (and local development without .env) to boot
+    // without crashing when OIDC settings are not configured.
+    if (!hasOidcConfig) {
+      if (import.meta.dev) {
+        console.info(
+          '[auth-hydration] Skipped: missing OIDC config (issuer/clientId/redirectUri).',
+        )
+      }
+      return
+    }
+
     const { loadUser } = useAuth()
 
     // Register profile sync once so auth restoration and later auth changes

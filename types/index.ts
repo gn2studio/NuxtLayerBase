@@ -134,3 +134,29 @@ export interface ConfirmOptions {
   /** Visual variant */
   type?: 'info' | 'success' | 'warning' | 'danger'
 }
+
+/**
+ * Payload used when showing a Toast message.
+ */
+export interface ToastOptions {
+  title?: string
+  message: string
+  /** Auto dismiss duration in ms. Set 0 or negative to keep it open. */
+  duration?: number
+}
+
+/**
+ * Payload used when showing the global loading overlay.
+ */
+export interface LoadingOptions {
+  /** Message displayed near the loading spinner */
+  message?: string
+}
+
+/**
+ * Payload used when starting progress-based loading.
+ */
+export interface ProgressLoadingOptions {
+  /** Message displayed above the progress bar */
+  message?: string
+}

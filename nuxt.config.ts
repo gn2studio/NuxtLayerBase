@@ -35,6 +35,20 @@ export default defineNuxtConfig({
       // Convenience flag: routes that do NOT require authentication.
       // Comma-separated list of route prefixes, e.g. "/,/about,/login"
       authPublicRoutes: '/',
+
+      // Built-in UI toggles for this layer (Alert/Confirm/Toast).
+      // Set false in a consuming project when you want to provide your own UI.
+      uiUseBuiltInAlert: true,
+      uiUseBuiltInConfirm: true,
+      uiUseBuiltInToast: true,
+      uiUseBuiltInLoading: true,
+      uiUseBuiltInProgressLoading: true,
+
+      // Keep overlays above any app layer by default.
+      uiOverlayZIndex: 2147483000,
+      uiToastZIndex: 2147483001,
+      uiLoadingZIndex: 2147483002,
+      uiProgressLoadingZIndex: 2147483003,
     },
   },
 

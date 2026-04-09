@@ -9,34 +9,10 @@
  * by adding a deeper specificity rule or by replacing this component.
  */
 import { useAlert } from '~/composables/useAlert'
+import { useLayerUiConfig } from '~/composables/useLayerUiConfig'
 
 const { state, _dismiss } = useAlert()
-
-const typeClasses = computed(() => {
-  const t = state.value.options.type ?? 'info'
-  return {
-    info: {
-      icon: 'ℹ️',
-      header: 'bg-blue-600',
-      button: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-    },
-    success: {
-      icon: '✅',
-      header: 'bg-green-600',
-      button: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
-    },
-    warning: {
-      icon: '⚠️',
-      header: 'bg-yellow-500',
-      button: 'bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-400',
-    },
-    error: {
-      icon: '❌',
-      header: 'bg-red-600',
-      button: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-    },
-  }[t]
-})
+const { overlayZIndex, useBuiltInAlert } = useLayerUiConfig()
 </script>
 
 <template>
@@ -50,8 +26,9 @@ const typeClasses = computed(() => {
       leave-to-class="opacity-0"
     >
       <div
-        v-if="state.visible"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+        v-if="state.visible && useBuiltInAlert"
+        class="fixed inset-0 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px] supports-[backdrop-filter]:bg-black/35"
+        :style="{ zIndex: overlayZIndex }"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="state.options.title ? 'alert-title' : undefined"
@@ -60,44 +37,45 @@ const typeClasses = computed(() => {
       >
         <!-- Modal panel -->
         <div
-          class="w-full max-w-sm overflow-hidden rounded-xl shadow-2xl bg-white dark:bg-gray-800"
+          class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/20 bg-white/8 shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
           @click.stop
         >
-          <!-- Header -->
-          <div :class="['px-5 py-4 flex items-center gap-3', typeClasses?.header]">
-            <span class="text-xl select-none" aria-hidden="true">{{ typeClasses?.icon }}</span>
-            <h2
-              v-if="state.options.title"
-              id="alert-title"
-              class="text-base font-semibold text-white truncate"
-            >
-              {{ state.options.title }}
-            </h2>
-          </div>
+          <div
+            class="pointer-events-none absolute inset-0 bg-gradient-to-br from-black/45 via-black/35 to-black/45"
+            aria-hidden="true"
+          />
+          <div
+            class="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/8 via-white/4 to-white/0"
+            aria-hidden="true"
+          />
 
-          <!-- Body -->
-          <div class="px-5 py-5">
+          <div class="relative px-7 pb-7 pt-7 sm:px-8">
+            <h2
+              id="alert-title"
+              class="text-2xl font-semibold leading-tight tracking-tight text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] sm:text-3xl"
+              style="color: rgb(255 255 255)"
+            >
+              {{ state.options.title ?? '알림' }}
+            </h2>
             <p
               id="alert-message"
-              class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
+              class="mt-4 whitespace-pre-wrap text-lg leading-8 text-slate-100/92 [text-shadow:0_1px_2px_rgba(0,0,0,0.68)]"
+              style="color: rgb(241 245 249)"
             >
               {{ state.options.message }}
             </p>
-          </div>
 
-          <!-- Footer -->
-          <div class="px-5 pb-5 flex justify-end">
-            <button
-              :class="[
-                'inline-flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium text-white',
-                'focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors',
-                typeClasses?.button,
-              ]"
-              autofocus
-              @click="_dismiss"
-            >
-              {{ state.options.okLabel ?? '확인' }}
-            </button>
+            <div class="mt-7 flex justify-start">
+              <button
+                class="inline-flex items-center justify-center rounded-lg border border-white/30 bg-white/20 px-5 py-2.5 text-base font-semibold leading-none text-white
+                       shadow-lg shadow-black/25 backdrop-blur-md transition hover:bg-white/28 focus:outline-none focus:ring-2
+                       focus:ring-white/60 focus:ring-offset-0 active:scale-[0.98]"
+                autofocus
+                @click="_dismiss"
+              >
+                {{ state.options.okLabel ?? '확인' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>

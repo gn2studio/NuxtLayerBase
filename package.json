@@ -11,7 +11,11 @@
     "./*": "./*"
   },
   "scripts": {
-    "dev": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs dev",
+    "dev": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs dev playground",
+    "dev:layer": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs dev",
+    "generate:preview": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs generate playground",
+    "package:preview": "npx -y node@22.12.0 ./scripts/prepare-preview-deploy.mjs",
+    "build:preview:manual": "npm run generate:preview && npm run package:preview",
     "build": "npx -y node@22.12.0 ./scripts/nuxi-compat.mjs build"
   },
   "engines": {
