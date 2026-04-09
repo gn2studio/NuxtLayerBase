@@ -68,7 +68,7 @@ NuxtLayerBase/
 - 미리보기 앱은 `playground`이며, 정적 결과물은 `playground/.output/public` 및 패키징 폴더 `preview-dist`입니다.
 - 배포 자동화(Action)는 사용하지 않고 수동 배포 스크립트(`build:preview:manual`, `scripts/build-preview-manual.bat`)를 사용합니다.
 - 저장소 URL: https://github.com/gn2studio/NuxtLayerBase
-- 미리보기 URL: https://gn2studio.github.io/
+- 미리보기 URL: [https://gn2studio.github.io](https://gn2studio.github.io)
 
 ### AI에게 작업 요청할 때 포함하면 좋은 체크리스트
 
